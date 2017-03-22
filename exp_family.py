@@ -42,11 +42,10 @@ class GaussianDistribution(ExponentialFamilyDistribution):
     def grad_A(self):
         # \nabla_S - log(det(S)) = - S^{-1} = - cov
         # \nabla_S^{-1} m^T S^{-1} m =  mm^T
-        # \nabla_S m^T S^{-1} m =  S^{-1} mm^T S^{-1}
+        # \nabla_S m^T S^{-1} m =  -S^{-1} mm^T S^{-1}
 
-        # !!!!! there is "+ cov" in the paper, not "- cov" for some reason
         t = self.cov.dot(self.m)
-        return (t, 0.5 * (np.outer(t, t) - self.cov))
+        return (t, -0.5 * (np.outer(t, t) + self.cov))
 
     def T(self, x):
         return (x, -0.5 * np.outer(x, x))
