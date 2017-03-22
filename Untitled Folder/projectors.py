@@ -27,3 +27,4 @@ class EigenBoxProjector(BoxProjector):
         eig, v = np.linalg.eig(x)
         eig = np.clip(eig, a_min=self.min, a_max = self.max) 
         return v.dot(np.diag(eig)).dot(v.T)
+

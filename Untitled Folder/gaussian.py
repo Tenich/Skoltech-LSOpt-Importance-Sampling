@@ -4,6 +4,7 @@ import numpy as np
 class GaussianDistribution(ExponentialFamilyDistribution):
     def __init__(self, *theta):
         super(GaussianDistribution, self).__init__(*theta)
+        #print theta[0]
         m, S = theta
         self.m = m
         self.S = S
