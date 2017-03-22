@@ -46,7 +46,7 @@ class GaussianDistribution(ExponentialFamilyDistribution):
 
         # !!!!! there is "+ cov" in the paper, not "- cov" for some reason
         t = self.cov.dot(self.m)
-        return (t, -0.5 * (np.outer(t, t) + self.cov))
+        return (t, 0.5 * (np.outer(t, t) - self.cov))
 
     def T(self, x):
         return (x, -0.5 * np.outer(x, x))
