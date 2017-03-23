@@ -1,5 +1,5 @@
 import numpy as np
-
+import scipy as sp
 
 def _dot(a, b):
     return sum(np.inner(x.ravel(), y.ravel()) for x, y in zip(a, b))
@@ -55,3 +55,30 @@ class GaussianDistribution(ExponentialFamilyDistribution):
 
     def sample(self):
         return np.random.multivariate_normal(mean=self.mu, cov=self.cov)
+
+
+
+class DirichletDistribution(ExponentialFamilyDistribution):
+    def __init__(self, *theta):
+        super(DirichletDistribution, self).__init__(*theta)
+
+
+        # thetas are original parameters alpha of dirichlet distribution 
+        self.theta = theta
+
+    def A(self):
+        return np.log(np.sum(sp.special.gamma(self.theta))) - np.log(sp.special.gamma(np.sum(self.theta)))
+
+    def grad_A(self):
+        grad = [sp.special.psi(self.theta[i]) / sp.special.gamma(self.theta[i]) - sp.special.psi(np.sum(self.theta[i])) / sp.special.gamma(np.sum(self.theta[i])) for i in range(len(self.theta))]
+        return grad
+
+    def T(self, x):
+        return np.log(x)
+
+    def h(self, x):
+        return 1./np.exp(np.log(x).sum())
+
+    def sample(self):
+        return np.random.dirichlet(np.array(self.theta))
+    
