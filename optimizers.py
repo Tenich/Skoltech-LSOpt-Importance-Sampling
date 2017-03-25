@@ -52,8 +52,9 @@ def mirror_update(obj, f_class, mirror, C, theta0, n_iters=5000):
 
         tmp = (obj(x) / f.pdf(x)) ** 2
         g = tuple(tmp * (a - b) for a, b in zip(f.grad_A(), f.T(x)))
+        # print "gradient: ", g, "\t value: ", theta 
         alpha = C / i ** 0.5
-        theta = mirror(theta, g[0], alpha)  # - C / i ** 0.5 *
+        theta = mirror(theta, g, alpha)  # - C / i ** 0.5 *
         thetas.append((theta, ))
 
     return thetas, estimations

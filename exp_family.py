@@ -81,4 +81,3 @@ class DirichletDistribution(ExponentialFamilyDistribution):
 
     def sample(self):
         return np.random.dirichlet(np.array(self.theta))
-    
