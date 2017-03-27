@@ -5,6 +5,7 @@ import numpy as np
 ####### Projected gradient method #######
 
 def step(old_theta, step_size, grad):
+    """returns old_theta - step_size * grad"""
     return tuple(t - step_size * g for t, g in zip(old_theta, grad))
 
 
@@ -26,7 +27,7 @@ def projected_gradient(obj, f_class, projector, C, theta0, n_iters=1000):
         theta = projector(*step(theta, C, g))
         thetas.append(theta)
 
-    return thetas, estimations
+    return thetas, np.array(estimations)
 
 
 ####### Mirror descent method #######
@@ -57,7 +58,7 @@ def mirror_update(obj, f_class, mirror, C, theta0, n_iters=5000):
         theta = mirror(theta, g, alpha)  # - C / i ** 0.5 *
         thetas.append((theta, ))
 
-    return thetas, estimations
+    return thetas, np.array(estimations)
 
 
 ####### ADMM method #######
@@ -77,31 +78,32 @@ def __reshape(x, shapes):
     return tuple(result)
 
 
-def admm(obj, f_class, projector, r, theta0, n_iters=1000):
-    raise NotImplemented
-
+def admm(obj, f_class, projector, beta, C, theta0, n_iters=1000):
+    """realisation of https://arxiv.org/pdf/1211.0632.pdf"""
     estimations = []
     thetas = [theta0]
 
     cumsum = 0
     theta = theta0
+    y = theta0
     theta_shape = tuple([x.shape for x in theta])
+    l = tuple([np.zeros_like(x) for x in theta])
     for i in tqdm_notebook(range(1, n_iters + 1)):
-        f = f_class(*theta)
+        f = f_class(*y)
         x = f.sample()
 
         cumsum += obj(x) / f.pdf(x)
         estimations.append(cumsum / i)
-
-        def subtask_obj(theta):
-            theta = __reshape(theta, theta_shape)
-            return obj(theta) ** 2 / f.pdf(theta)
-
-        res = scipy.optimize.minimize(subtask_obj, )
-
+        
         mult = (obj(x) / f.pdf(x)) ** 2
         g = tuple(mult * (a - b) for a, b in zip(f.grad_A(), f.T(x)))
-        theta = projector(*step(theta, C / i ** 0.5, g))
-        thetas.append(theta)
+        
+        eta = C / i ** 0.5
+        theta = tuple([(beta * y_part + l_part + theta_part / eta - g_part) / (beta + 1. / eta) 
+                       for y_part, l_part, theta_part, g_part in zip(y, l, theta, g)])
+        y = projector(*theta)
+        l = step(l, beta, step(theta, 1, y))
 
-    return thetas, estimations
+        thetas.append(y)
+
+    return thetas, np.array(estimations)
