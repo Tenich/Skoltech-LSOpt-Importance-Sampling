@@ -59,8 +59,8 @@ class GaussianDistribution(ExponentialFamilyDistribution):
 
 
 class DirichletDistribution(ExponentialFamilyDistribution):
-    def __init__(self, *theta):
-        super(DirichletDistribution, self).__init__(*theta)
+    def __init__(self, theta):
+        super(DirichletDistribution, self).__init__(theta)
 
 
         # thetas are original parameters alpha of dirichlet distribution 
@@ -80,4 +80,4 @@ class DirichletDistribution(ExponentialFamilyDistribution):
         return 1./np.exp(np.log(x).sum())
 
     def sample(self):
-        return np.random.dirichlet(np.array(self.theta))
+        return np.random.dirichlet(self.theta)
